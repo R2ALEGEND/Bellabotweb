@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bella — True Definition of a Music Bot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous"/>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --p: #9B6BFF;
+      --p2: #7C4FD4;
+      --p-glow: rgba(155,107,255,0.4);
+      --gold: #FFE87A;
+      --gold2: #C8A84B;
+      --bg: #050508;
+      --bg2: #0b0a12;
+      --bg3: #110f1e;
+      --glass: rgba(255,255,255,0.03);
+      --border: rgba(155,107,255,0.15);
+      --text: #f0eeff;
+      --muted: #7a7494;
+      --ff-head: 'Bebas Neue', sans-serif;
+      --ff-body: 'Outfit', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    #cursor {
+      width: 12px; height: 12px;
+      background: var(--p);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(155,107,255,0.5);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s ease-out, width 0.2s, height 0.2s;
+    }
+    body:hover #cursor { opacity: 1; }
+    a:hover ~ #cursor, button:hover ~ #cursor { width: 20px; height: 20px; }
+
+    /* ── GRAIN ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      height: 68px;
+      background: rgba(5,5,8,0.8);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none; color: var(--text);
+      font-family: var(--ff-head);
+      font-size: 26px; letter-spacing: 2px;
+    }
+
+    .nav-logo img {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid var(--p);
+      box-shadow: 0 0 16px var(--p-glow);
+    }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 36px; list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none; color: var(--muted); font-size: 14px;
+      font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--p) !important; color: #fff !important;
+      padding: 9px 22px; border-radius: 6px;
+      font-weight: 600 !important; transition: box-shadow 0.2s, transform 0.2s !important;
+      box-shadow: 0 0 20px var(--p-glow);
+    }
+    .nav-cta:hover {
+      box-shadow: 0 0 40px var(--p-glow) !important;
+      transform: translateY(-1px);
+    }
+
+    /* ── WAVEFORM SVG BG ── */
+    .wave-bg {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 120px; opacity: 0.12; pointer-events: none;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: grid; place-items: center;
+      padding: 100px 48px 60px;
+      overflow: hidden;
+    }
+
+    /* mesh gradient */
+    .hero-mesh {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 40%, rgba(155,107,255,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 80% 30%, rgba(124,79,212,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 60% 80%, rgba(255,232,122,0.04) 0%, transparent 60%);
+    }
+
+    /* animated grid lines */
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+      background-image:
+        linear-gradient(rgba(155,107,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(155,107,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridPan 20s linear infinite;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 80%);
+    }
+
+    @keyframes gridPan {
+      0% { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    .hero-inner {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      gap: 0;
+    }
+
+    /* spinning vinyl */
+    .vinyl-wrap {
+      position: relative; width: 140px; height: 140px; margin-bottom: 40px;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .vinyl-wrap img {
+      width: 140px; height: 140px; border-radius: 50%;
+      border: 4px solid rgba(155,107,255,0.6);
+      box-shadow:
+        0 0 0 8px rgba(155,107,255,0.08),
+        0 0 60px rgba(155,107,255,0.5),
+        0 0 120px rgba(155,107,255,0.2);
+      animation: spin 12s linear infinite;
+    }
+
+    .vinyl-center {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--p);
+      box-shadow: 0 0 10px var(--p-glow);
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* pulsing ring behind vinyl */
+    .vinyl-wrap::before, .vinyl-wrap::after {
+      content: ''; position: absolute;
+      top: 50%; left: 50%;
+      border-radius: 50%;
+      border: 1px solid rgba(155,107,255,0.3);
+      transform: translate(-50%, -50%);
+      animation: ringPulse 3s ease-out infinite;
+    }
+    .vinyl-wrap::after { animation-delay: 1.5s; }
+
+    @keyframes ringPulse {
+      0% { width: 140px; height: 140px; opacity: 0.6; }
+      100% { width: 220px; height: 220px; opacity: 0; }
+    }
+
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--p);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+      animation: fadeUp 0.7s 0.05s ease both;
+    }
+
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: ''; flex: 1; height: 1px; background: var(--border); width: 40px;
+    }
+
+    h1.hero-title {
+      font-family: var(--ff-head);
+      font-size: clamp(64px, 10vw, 130px);
+      line-height: 0.92;
+      letter-spacing: 3px;
+      color: var(--text);
+      margin-bottom: 24px;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    h1.hero-title .line2 {
+      display: block;
+      -webkit-text-stroke: 2px var(--p);
+      color: transparent;
+      text-shadow: 0 0 40px rgba(155,107,255,0.3);
+    }
+
+    .hero-sub {
+      max-width: 520px;
+      font-size: 16px; line-height: 1.75;
+      color: var(--muted); font-weight: 300;
+      margin-bottom: 40px;
+      animation: fadeUp 0.7s 0.15s ease both;
+    }
+
+    .hero-btns {
+      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .btn-main {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--p); color: #fff;
+      text-decoration: none; font-weight: 700; font-size: 14px;
+      padding: 14px 32px; border-radius: 8px; letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 0 30px var(--p-glow), 0 4px 20px rgba(0,0,0,0.4);
+      transition: box-shadow 0.3s, transform 0.2s;
+      position: relative; overflow: hidden;
+    }
+
+    .btn-main::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.4s;
+    }
+
+    .btn-main:hover::before { left: 100%; }
+    .btn-main:hover {
+      box-shadow: 0 0 50px var(--p-glow), 0 8px 30px rgba(0,0,0,0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: transparent; color: var(--muted);
+      text-decoration: none; font-weight: 600; font-size: 14px;
+      padding: 14px 28px; border-radius: 8px;
+      border: 1px solid var(--border); letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.2s, border-color 0.2s, transform 0.2s;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text); border-color: rgba(155,107,255,0.5);
+      transform: translateY(-2px);
+    }
+
+    /* ── LIVE BAR ── */
+    .live-bar {
+      margin-top: 56px;
+      display: flex; align-items: center; gap: 16px;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .live-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+
+    .live-text {
+      font-size: 12px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+    }
+
+    /* mini waveform bars */
+    .waveform {
+      display: flex; align-items: center; gap: 3px; height: 20px;
+    }
+
+    .waveform span {
+      display: block; width: 3px; background: var(--p);
+      border-radius: 2px; animation: wave 1.2s ease-in-out infinite alternate;
+    }
+
+    .waveform span:nth-child(1) { height: 6px; animation-delay: 0s; }
+    .waveform span:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+    .waveform span:nth-child(3) { height: 10px; animation-delay: 0.2s; }
+    .waveform span:nth-child(4) { height: 18px; animation-delay: 0.15s; }
+    .waveform span:nth-child(5) { height: 8px; animation-delay: 0.05s; }
+    .waveform span:nth-child(6) { height: 16px; animation-delay: 0.25s; }
+    .waveform span:nth-child(7) { height: 6px; animation-delay: 0.3s; }
+
+    @keyframes wave {
+      from { transform: scaleY(0.4); }
+      to { transform: scaleY(1.4); }
+    }
+
+    /* scroll indicator */
+    .scroll-ind {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: var(--muted); font-size: 10px; letter-spacing: 0.2em;
+      text-transform: uppercase;
+      animation: fadeUp 1s 0.8s both;
+    }
+
+    .scroll-ind i { animation: bounce 2s ease-in-out infinite; font-size: 14px; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* ── MARQUEE STRIP ── */
+    .marquee-strip {
+      overflow: hidden; white-space: nowrap;
+      background: var(--p);
+      padding: 14px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .marquee-inner {
+      display: inline-flex; gap: 0;
+      animation: marquee 18s linear infinite;
+    }
+
+    .marquee-item {
+      font-family: var(--ff-head);
+      font-size: 16px; letter-spacing: 3px;
+      padding: 0 32px; color: rgba(255,255,255,0.9);
+      display: flex; align-items: center; gap: 16px;
+    }
+
+    .marquee-item i { font-size: 12px; opacity: 0.7; }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      padding: 100px 48px;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .section-tag {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--p);
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-tag::before {
+      content: ''; width: 24px; height: 2px; background: var(--p);
+    }
+
+    .section-heading {
+      font-family: var(--ff-head);
+      font-size: clamp(40px, 5vw, 70px);
+      line-height: 1; letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .section-heading em {
+      font-style: normal;
+      color: var(--gold);
+      text-shadow: 0 0 30px rgba(255,232,122,0.3);
+    }
+
+    .section-sub {
+      color: var(--muted); font-size: 16px; line-height: 1.65;
+      max-width: 440px; margin-bottom: 64px; font-weight: 300;
+    }
+
+    /* bento grid */
+    .bento {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 16px;
+    }
+
+    .bento-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+      position: relative;
+      transition: border-color 0.35s, transform 0.35s, box-shadow 0.35s;
+    }
+
+    .bento-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at top left, rgba(155,107,255,0.07), transparent 65%);
+      pointer-events: none;
+    }
+
+    .bento-card:hover {
+      border-color: rgba(155,107,255,0.45);
+      transform: translateY(-5px) scale(1.005);
+      box-shadow: 0 24px 60px rgba(155,107,255,0.12), 0 0 0 1px rgba(155,107,255,0.2);
+    }
+
+    /* card number badge */
+    .card-num-badge {
+      position: absolute; top: 20px; right: 20px; z-index: 3;
+      font-family: var(--ff-head);
+      font-size: 13px; letter-spacing: 2px;
+      color: rgba(155,107,255,0.6);
+      background: rgba(155,107,255,0.08);
+      border: 1px solid rgba(155,107,255,0.15);
+      padding: 4px 10px; border-radius: 100px;
+    }
+
+    .bento-img {
+      width: 100%; display: block;
+      aspect-ratio: 16/9; object-fit: contain;
+      border-bottom: 1px solid var(--border);
+      transition: transform 0.5s;
+      
+    }
+
+    .bento-card:hover .bento-img { transform: scale(1.03); }
+
+    .bento-body {
+      padding: 24px 28px 28px;
+    }
+
+    .bento-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(155,107,255,0.12);
+      border: 1px solid rgba(155,107,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--p);
+      margin-bottom: 14px;
+    }
+
+    .bento-title {
+      font-family: var(--ff-head);
+      font-size: 26px; letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .bento-desc {
+      font-size: 14px; color: var(--muted); line-height: 1.65; font-weight: 300;
+    }
+
+    /* ── CTA SECTION ── */
+    .cta-wrap {
+      padding: 0 48px 100px;
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .cta-block {
+      border-radius: 24px; overflow: hidden; position: relative;
+      padding: 100px 64px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .cta-block::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 0%, rgba(155,107,255,0.2) 0%, transparent 70%);
+    }
+
+    /* animated horizontal lines */
+    .cta-lines {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden; opacity: 0.3;
+    }
+
+    .cta-lines span {
+      position: absolute; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--p), transparent);
+      animation: lineSweep 4s ease-in-out infinite;
+    }
+
+    .cta-lines span:nth-child(1) { top: 25%; animation-delay: 0s; }
+    .cta-lines span:nth-child(2) { top: 50%; animation-delay: 1.3s; }
+    .cta-lines span:nth-child(3) { top: 75%; animation-delay: 2.6s; }
+
+    @keyframes lineSweep {
+      0% { transform: translateX(-100%); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateX(100%); opacity: 0; }
+    }
+
+    .cta-block h2 {
+      font-family: var(--ff-head);
+      font-size: clamp(48px, 6vw, 86px);
+      letter-spacing: 3px; line-height: 0.95;
+      margin-bottom: 20px; position: relative; z-index: 2;
+    }
+
+    .cta-block h2 span { color: var(--gold); }
+
+    .cta-block p {
+      color: var(--muted); font-size: 17px; line-height: 1.65;
+      max-width: 420px; margin: 0 auto 40px;
+      position: relative; z-index: 2; font-weight: 300;
+    }
+
+    .cta-btns { position: relative; z-index: 2; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 72px 48px 36px;
+    }
+
+    .foot-inner {
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .foot-top {
+      display: flex; justify-content: space-between;
+      gap: 48px; flex-wrap: wrap; margin-bottom: 56px;
+    }
+
+    .foot-brand { max-width: 320px; }
+
+    .foot-logo-row {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .foot-logo-row img {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 2px solid var(--p);
+      box-shadow: 0 0 20px var(--p-glow);
+    }
+
+    .foot-logo-row span {
+      font-family: var(--ff-head);
+      font-size: 28px; letter-spacing: 3px;
+    }
+
+    .foot-brand p {
+      color: var(--muted); font-size: 14px; line-height: 1.7;
+      font-weight: 300; margin-bottom: 24px;
+    }
+
+    .foot-socials { display: flex; gap: 10px; }
+
+    .foot-social {
+      width: 40px; height: 40px; border-radius: 10px;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 15px;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+
+    .foot-social:hover {
+      color: var(--text);
+      border-color: var(--p);
+      background: rgba(155,107,255,0.1);
+      box-shadow: 0 0 16px var(--p-glow);
+    }
+
+    .foot-links-row { display: flex; gap: 64px; flex-wrap: wrap; }
+
+    .foot-col h4 {
+      font-family: var(--ff-head);
+      font-size: 14px; letter-spacing: 0.15em;
+      color: var(--text); margin-bottom: 20px;
+    }
+
+    .foot-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+
+    .foot-col ul a {
+      text-decoration: none; color: var(--muted); font-size: 14px;
+      transition: color 0.2s; display: flex; align-items: center; gap: 8px;
+    }
+
+    .foot-col ul a i { font-size: 11px; }
+    .foot-col ul a:hover { color: var(--text); }
+
+    .foot-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+
+    .foot-bottom p, .foot-bottom span {
+      font-size: 13px; color: var(--muted);
+    }
+
+    .foot-bottom .music-note {
+      color: var(--p); font-size: 11px;
+    }
+
+    /* ── UTILS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* scroll reveal */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal:nth-child(2) { transition-delay: 0.1s; }
+    .reveal:nth-child(3) { transition-delay: 0.2s; }
+    .reveal:nth-child(4) { transition-delay: 0.3s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      nav { padding: 0 24px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 24px 60px; }
+      .features { padding: 80px 24px; }
+      .bento { grid-template-columns: 1fr; }
+      .cta-wrap { padding: 0 24px 80px; }
+      .cta-block { padding: 60px 28px; }
+      footer { padding: 60px 24px 28px; }
+      .foot-top { flex-direction: column; }
+      .foot-links-row { gap: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#home" class="nav-logo">
+      <img src="https://i.ibb.co/dwm1Tp82/200787db319830905d8925c6401326bb.png" alt="Bella">
+      BELLA
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="https://top.gg/bot/904317141866647592/vote">Vote</a></li>
+      <li><a href="https://discord.gg/ehUdwcWRVH">Support</a></li>
+      <li><a href="https://discord.com/oauth2/authorize?client_id=904317141866647592&permissions=8&scope=bot%20applications.commands" class="nav-cta">Add to Discord</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-mesh"></div>
+    <div class="hero-grid"></div>
+
+    <div class="hero-inner">
+      <div class="vinyl-wrap">
+        <img src="https://i.ibb.co/dwm1Tp82/200787db319830905d8925c6401326bb.png" alt="Bella">
+        <div class="vinyl-center"></div>
+      </div>
+
+      <div class="hero-eyebrow">Discord Music Bot</div>
+
+      <h1 class="hero-title">
+        TRUE DEFINITION<br>
+        <span class="line2">OF A MUSIC BOT</span>
+      </h1>
+
+      <p class="hero-sub">
+        Bella brings exceptional audio quality and seamless controls to your Discord server. Always on, always ready — just add and hit play.
+      </p>
+
+      <div class="hero-btns">
+        <a href="https://discord.com/oauth2/authorize?client_id=904317141866647592&permissions=8&scope=bot%20applications.commands" class="btn-main">
+          <i class="fa-brands fa-discord"></i> Add to Discord
+        </a>
+        <a href="https://top.gg/bot/904317141866647592/vote" class="btn-ghost">
+          <i class="fas fa-vote-yea"></i> Vote on Top.gg
+        </a>
+      </div>
+
+      <div class="live-bar">
+        <div class="live-dot"></div>
+        <span class="live-text">Online Now</span>
+        <div class="waveform">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-ind">
+      <i class="fa-solid fa-chevron-down"></i>
+      Scroll
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip" aria-hidden="true">
+    <div class="marquee-inner">
+      <!-- duplicated for seamless loop -->
+      <div class="marquee-item"><i class="fa-solid fa-music"></i> HIGH QUALITY AUDIO</div>
+      <div class="marquee-item"><i class="fa-solid fa-bolt"></i> INSTANT PLAYBACK</div>
+      <div class="marquee-item"><i class="fa-solid fa-sliders"></i> FULL CONTROLS</div>
+      <div class="marquee-item"><i class="fa-solid fa-clock"></i> 24 / 7 UPTIME</div>
+      <div class="marquee-item"><i class="fa-solid fa-wand-magic-sparkles"></i> CUSTOMIZABLE</div>
+      <div class="marquee-item"><i class="fa-brands fa-discord"></i> DISCORD NATIVE</div>
+      <div class="marquee-item"><i class="fa-solid fa-music"></i> HIGH QUALITY AUDIO</div>
+      <div class="marquee-item"><i class="fa-solid fa-bolt"></i> INSTANT PLAYBACK</div>
+      <div class="marquee-item"><i class="fa-solid fa-sliders"></i> FULL CONTROLS</div>
+      <div class="marquee-item"><i class="fa-solid fa-clock"></i> 24 / 7 UPTIME</div>
+      <div class="marquee-item"><i class="fa-solid fa-wand-magic-sparkles"></i> CUSTOMIZABLE</div>
+      <div class="marquee-item"><i class="fa-brands fa-discord"></i> DISCORD NATIVE</div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="section-tag reveal">What Bella Does</div>
+    <h2 class="section-heading reveal">BUILT FOR THE<br><em>BEST SOUND</em></h2>
+    <p class="section-sub reveal">Everything you need from a music bot — powerful, intuitive, and always performing.</p>
+
+    <div class="bento">
+      <div class="bento-card reveal">
+        <div class="card-num-badge">01</div>
+        <img src="https://i.ibb.co/RkNDvqKL/Picsart-26-05-10-11-24-54-241.png" alt="Music Panel" class="bento-img">
+        <div class="bento-body">
+          <div class="bento-icon"><i class="fa-solid fa-sliders"></i></div>
+          <div class="bento-title">MUSIC PANEL</div>
+          <p class="bento-desc">Full playback control in one sleek interface. Play, pause, skip, queue — everything at your fingertips without leaving the server.</p>
+        </div>
+      </div>
+
+      <div class="bento-card reveal">
+        <div class="card-num-badge">02</div>
+        <img src="https://i.ibb.co/F4ytk8YZ/Picsart-26-05-10-10-19-18-656.png" alt="Change Presentation" class="bento-img">
+        <div class="bento-body">
+          <div class="bento-icon"><i class="fa-solid fa-palette"></i></div>
+          <div class="bento-title">CHANGE PRESENTATION</div>
+          <p class="bento-desc">Switch up how music looks in your server. Multiple display styles to match any server's vibe and aesthetic.</p>
+        </div>
+      </div>
+
+      <div class="bento-card reveal">
+        <div class="card-num-badge">03</div>
+        <img src="https://i.ibb.co/TDs17KgC/Picsart-26-05-10-11-26-27-544.png" alt="Customize Bot" class="bento-img">
+        <div class="bento-body">
+          <div class="bento-icon"><i class="fa-solid fa-gear"></i></div>
+          <div class="bento-title">CUSTOMIZE BOT</div>
+          <p class="bento-desc">Tailor Bella's behavior to your community. Adjust settings, permissions, and preferences for a perfect fit.</p>
+        </div>
+      </div>
+
+      <div class="bento-card reveal">
+        <div class="card-num-badge">04</div>
+        <img src="https://i.ibb.co/pvTtLt5v/IMG-20260510-112145.png" alt="Easy Play" class="bento-img">
+        <div class="bento-body">
+          <div class="bento-icon"><i class="fa-solid fa-play"></i></div>
+          <div class="bento-title">EASY PLAY</div>
+          <p class="bento-desc">One command and you're listening. No complex setup, no friction — Bella handles everything so you can focus on the music.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <div class="cta-block">
+      <div class="cta-lines">
+        <span></span><span></span><span></span>
+      </div>
+      <h2>BRING THE<br><span>MUSIC HOME</span></h2>
+      <p>Join your community and thousands of servers already using Bella for premium music on Discord.</p>
+      <div class="cta-btns">
+        <a href="https://discord.com/oauth2/authorize?client_id=904317141866647592&permissions=8&scope=bot%20applications.commands" class="btn-main">
+          <i class="fa-brands fa-discord"></i> Add Bella — It's Free
+        </a>
+        <a href="https://discord.gg/ehUdwcWRVH" class="btn-ghost">
+          <i class="fa-brands fa-discord"></i> Support Server
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-inner">
+      <div class="foot-top">
+        <div class="foot-brand">
+          <div class="foot-logo-row">
+            <img src="https://i.ibb.co/dwm1Tp82/200787db319830905d8925c6401326bb.png" alt="Bella">
+            <span>BELLA</span>
+          </div>
+          <p>The quality music bot for your Discord server. High-fidelity audio, intuitive controls, zero friction.</p>
+          <div class="foot-socials">
+            <a href="https://discord.com/oauth2/authorize?client_id=904317141866647592&permissions=8&scope=bot%20applications.commands" class="foot-social" title="Invite"><i class="fa-solid fa-plus"></i></a>
+            <a href="https://top.gg/bot/904317141866647592/vote" class="foot-social" title="Vote"><i class="fas fa-vote-yea"></i></a>
+            <a href="https://discord.gg/ehUdwcWRVH" class="foot-social" title="Discord"><i class="fa-brands fa-discord"></i></a>
+          </div>
+        </div>
+
+        <div class="foot-links-row">
+          <div class="foot-col">
+            <h4>PRODUCT</h4>
+            <ul>
+              <li><a href="https://discord.com/oauth2/authorize?client_id=904317141866647592&permissions=8&scope=bot%20applications.commands"><i class="fa-solid fa-plus"></i> Invite Bella</a></li>
+              <li><a href="#features"><i class="fa-solid fa-star"></i> Features</a></li>
+              <li><a href="https://top.gg/bot/904317141866647592/vote"><i class="fas fa-vote-yea"></i> Vote on Top.gg</a></li>
+            </ul>
+          </div>
+          <div class="foot-col">
+            <h4>COMMUNITY</h4>
+            <ul>
+              <li><a href="https://discord.gg/ehUdwcWRVH"><i class="fa-brands fa-discord"></i> Support Server</a></li>
+              <li><a href="https://top.gg/bot/904317141866647592"><i class="fa-solid fa-arrow-up-right-from-square"></i> Top.gg Page</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot-bottom">
+        <p>© 2026 Bella Music Bot. All rights reserved.</p>
+        <span><i class="fa-solid fa-music music-note"></i> Made for music lovers everywhere</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cur = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cur.style.left = mx + 'px';
+      cur.style.top = my + 'px';
+    });
+
+    function animRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cur.style.transform = 'translate(-50%,-50%) scale(2)';
+        ring.style.transform = 'translate(-50%,-50%) scale(1.5)';
+        ring.style.borderColor = 'rgba(155,107,255,0.8)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cur.style.transform = 'translate(-50%,-50%) scale(1)';
+        ring.style.transform = 'translate(-50%,-50%) scale(1)';
+        ring.style.borderColor = 'rgba(155,107,255,0.5)';
+      });
+    });
+
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(el => obs.observe(el));
+
+    // Nav shadow on scroll
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      nav.style.boxShadow = window.scrollY > 20 ? '0 4px 40px rgba(0,0,0,0.6)' : 'none';
+    });
+  </script>
+</body>
+</html>
